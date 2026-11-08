@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>El espejo que se desgasta</title>
+<link rel="stylesheet" href="css/espejo.css">
+<script src="https://unpkg.com/ml5@1.2.1/dist/ml5.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="config.js"></script>
+<script src="js/canal.js"></script>
+</head>
+<body>
+  <canvas id="lienzo"></canvas>
+
+  <div id="titulo" class="capa">El espejo que se desgasta</div>
+  <div id="expediente" class="capa"></div>
+
+  <div id="bateria" class="capa">
+    <span id="etiquetaBateria">Identidad 100 %</span>
+    <div class="cuerpo"><div class="nivel" id="nivelBateria" style="width:100%"></div></div>
+  </div>
+
+  <!-- 1. Esperando el celular -->
+  <div id="inicio" class="capa panel">
+    <h1>Este espejo<br>se desgasta.</h1>
+    <p>Escanea el código con tu celular para empezar.</p>
+    <div id="qr"></div>
+    <div id="codigo"></div>
+    <div id="modoPrueba"></div>
+  </div>
+
+  <!-- 2. Esperando la foto -->
+  <div id="esperaFoto" class="capa mensaje-central oculto">
+    <div class="icono">📱</div>
+    <h2>Mira tu celular</h2>
+    <p>Tómate una foto de frente.<br>Aparecerá aquí como tu reflejo.</p>
+  </div>
+
+  <!-- 3. Analizando la foto -->
+  <div id="analizando" class="capa mensaje-central oculto">
+    <div class="giro"></div>
+    <h2>Leyendo tu rostro…</h2>
+  </div>
+
+  <div id="aviso" class="capa"></div>
+  <div id="perdidos" class="capa"></div>
+
+  <div id="final" class="capa">
+    <div class="tarjeta">
+      <div class="etiqueta">EXPEDIENTE 6 · TÚ</div>
+      <h2 id="finalTitulo"></h2>
+      <p id="finalTexto"></p>
+      <p class="cierre" id="finalCierre"></p>
+      <div class="cifras" id="finalCifras"></div>
+      <button id="reiniciar">Siguiente persona</button>
+    </div>
+  </div>
+
+  <div id="ayuda" class="capa">Teclas de prueba: <b>C</b> conectar · <b>P</b> lo hizo sola · <b>D</b> delegar · <b>F</b> final · <b>R</b> reiniciar · <b>H</b> ocultar</div>
+
+  <script src="js/espejo.js"></script>
+</body>
+</html>

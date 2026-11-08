@@ -1,0 +1,62 @@
+:root { --amarillo:#ffd76a; --naranja:#f5a524; --rojo:#ff6b6b; --verde:#3ccf7a; --tinta:#0b0e15; }
+html, body { margin:0; height:100%; background:var(--tinta); color:#fff; overflow:hidden;
+  font-family:"Segoe UI", system-ui, -apple-system, Roboto, Arial, sans-serif; }
+#lienzo { position:fixed; inset:0; width:100%; height:100%; display:block; }
+.capa { position:fixed; pointer-events:none; }
+.capa button, .capa a { pointer-events:auto; }
+.oculto { display:none !important; }
+
+#titulo { top:24px; left:28px; font-size:13px; font-weight:700; letter-spacing:4px; color:#cfd6e6; text-transform:uppercase; }
+#expediente { top:48px; left:28px; font-size:16px; color:#9aa6c4; }
+
+/* Batería */
+#bateria { top:22px; right:28px; display:flex; align-items:center; gap:10px; font-size:16px; opacity:0; transition:opacity .6s; }
+#bateria.visible { opacity:1; }
+#bateria .cuerpo { width:96px; height:38px; border:3px solid #fff; border-radius:7px; padding:3px; position:relative; }
+#bateria .cuerpo::after { content:""; position:absolute; right:-10px; top:11px; width:6px; height:14px; background:#fff; border-radius:2px; }
+#bateria .nivel { height:100%; border-radius:3px; background:var(--verde); transition:width .8s, background .8s; }
+#bateria.agotada #etiquetaBateria { color:var(--rojo); font-weight:800; }
+
+/* Panel del QR */
+.panel { left:50%; top:50%; transform:translate(-50%,-50%); width:min(380px, 86vw); text-align:center;
+  background:rgba(15,20,36,.9); border:1px solid rgba(255,255,255,.12); border-radius:24px; padding:28px 26px; }
+.panel h1 { font-size:30px; margin:0 0 6px; line-height:1.15; }
+.panel p { color:#c3cbe0; margin:6px 0; font-size:16px; line-height:1.4; }
+#qr { background:#fff; border-radius:14px; padding:10px; margin:16px auto 10px; width:fit-content; }
+#qr svg { display:block; width:240px; height:240px; }
+#codigo { font-family:Consolas, monospace; letter-spacing:3px; color:var(--amarillo); font-size:15px; }
+#modoPrueba { margin-top:14px; font-size:13px; color:#9aa6c4; line-height:1.45; }
+#modoPrueba a { color:var(--amarillo); }
+
+.mensaje-central { left:50%; top:50%; transform:translate(-50%,-50%); text-align:center; }
+.mensaje-central .icono { font-size:72px; animation:flota 1.6s ease-in-out infinite; }
+.mensaje-central h2 { font-size:40px; margin:10px 0 6px; }
+.mensaje-central p { font-size:20px; color:#c3cbe0; line-height:1.45; margin:0; }
+@keyframes flota { 50% { transform:translateY(-10px); } }
+.giro { width:54px; height:54px; margin:0 auto; border:5px solid rgba(255,255,255,.2); border-top-color:var(--amarillo); border-radius:50%; animation:gira 1s linear infinite; }
+@keyframes gira { to { transform:rotate(360deg); } }
+
+/* Avisos */
+#aviso { left:50%; bottom:6vh; transform:translate(-50%, 20px); padding:12px 26px; border-radius:40px; font-weight:800; font-size:24px;
+  opacity:0; transition:opacity .4s, transform .4s; white-space:nowrap; }
+#aviso.visible { opacity:1; transform:translate(-50%, 0); }
+#aviso.bien { background:var(--amarillo); color:#3a2a00; }
+#aviso.mal { background:#3a1d22; color:#ff9a9a; border:2px solid var(--rojo); }
+#aviso.info { background:#1f3b2c; color:#6ee7a2; }
+
+#perdidos { left:28px; bottom:26px; font-size:16px; color:#ffb4a8; line-height:1.5; }
+#perdidos b { color:#fff; font-weight:600; }
+
+/* Final */
+#final { inset:0; display:flex; align-items:center; justify-content:center; opacity:0; transition:opacity 1.2s; }
+#final.visible { opacity:1; pointer-events:auto; }
+#final .tarjeta { background:rgba(15,20,36,.93); border:2px solid var(--rojo); border-radius:20px; padding:34px 44px; max-width:min(720px, 86vw); text-align:center; }
+#final.bueno .tarjeta { border-color:var(--verde); }
+#final .etiqueta { letter-spacing:4px; font-weight:800; color:var(--naranja); font-size:14px; }
+#final h2 { font-size:clamp(26px, 3.4vw, 44px); margin:12px 0; line-height:1.15; }
+#final p { font-size:clamp(16px, 1.6vw, 21px); color:#cfd6e6; margin:8px 0; line-height:1.45; }
+#final .cierre { color:var(--amarillo); font-weight:800; }
+#final .cifras { margin-top:18px; color:#9aa6c4; font-size:15px; }
+#final button { margin-top:22px; font:inherit; font-weight:700; font-size:16px; padding:12px 26px; border-radius:30px; border:0; background:#fff; color:var(--tinta); cursor:pointer; }
+
+#ayuda { right:28px; bottom:22px; font-size:12px; color:#5d6a8a; text-align:right; }
