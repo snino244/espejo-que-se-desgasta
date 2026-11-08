@@ -19,7 +19,15 @@
 // ============================================================
 
 window.CONFIG = {
-  firebase: null,
+  firebase: {
+    apiKey: "AIzaSyDqDGuzDtk3387GDToGrhyNxGaURcfSCvY",
+    authDomain: "espejo-desgasta.firebaseapp.com",
+    databaseURL: "https://espejo-desgasta-default-rtdb.firebaseio.com",
+    projectId: "espejo-desgasta",
+    storageBucket: "espejo-desgasta.firebasestorage.app",
+    messagingSenderId: "530260416183",
+    appId: "1:530260416183:web:4df02bfdb5d0912c885f32"
+  },
   /* Ejemplo:
   firebase: {
     apiKey: "...",
