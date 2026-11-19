@@ -103,7 +103,7 @@ function juegoAvion(zona, api) {
     flechaIzq.classList.toggle("oculto", a < DERECHO * 0.6);
     flechaDer.classList.toggle("oculto", a > -DERECHO * 0.6);
 
-    if (abs < DERECHO) { nivelado += dt; sust = Math.min(100, sust + 15 * dt); }
+    if (abs < DERECHO) { const antes = Math.floor(nivelado / 3); nivelado += dt; if (Math.floor(nivelado / 3) > antes && api.progreso) api.progreso(); sust = Math.min(100, sust + 15 * dt); }
     else if (abs > STALL) {
       sust -= 26 * dt;
       tiempoAlarma -= dt;
@@ -170,7 +170,7 @@ function juegoAterrizaje(zona, api) {
   const falta = zona.querySelector("#falta");
   const boton = zona.querySelector("#acelerar");
 
-  let v = 52, t = 0, fuera = 0, presionado = false, rafaga = 0, tiempoRafaga = azar(2, 3.5), alarma = 0, tentado = false, fin = false;
+  let v = 52, t = 0, fuera = 0, enZona = 0, presionado = false, rafaga = 0, tiempoRafaga = azar(2, 3.5), alarma = 0, tentado = false, fin = false;
 
   const bajar = (e) => { e.preventDefault(); presionado = true; boton.classList.add("presionado"); };
   const subir = () => { presionado = false; boton.classList.remove("presionado"); };
@@ -210,6 +210,8 @@ function juegoAterrizaje(zona, api) {
       if (!tentado && fuera > 1) { tentado = true; api.tentar(); }
     } else {
       fuera = Math.max(0, fuera - dt * 0.7);
+      const antes = Math.floor(enZona / 4); enZona += dt;
+      if (Math.floor(enZona / 4) > antes && api.progreso) api.progreso();
       aviso.classList.add("oculto");
     }
 

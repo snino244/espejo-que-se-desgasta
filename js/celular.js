@@ -101,6 +101,8 @@ const SONIDOS = {
   ia: () => { tono(1200, 0.4, "sine", 0.05); tono(1600, 0.5, "sine", 0.04, 0.2); },
 };
 const sonar = (t) => { try { SONIDOS[t] && SONIDOS[t](); } catch (e) {} };
+// Cada acierto dentro de un juego deja el fondo menos distorsionado (aquí y en el espejo)
+function acierto() { if (window.Estatica) Estatica.mejorar(); enviar({ tipo: "acierto" }); }
 const vibrar = (p) => {
   try {
     const activo = !navigator.userActivation || navigator.userActivation.hasBeenActive;
@@ -113,7 +115,6 @@ function aviso(texto, tipo = "") {
   if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.appendChild(toastEl); }
   toastEl.textContent = texto;
   toastEl.className = "toast ver " + tipo;
-  if (tipo === "bien" && window.Estatica) Estatica.destello();
   clearTimeout(toastT);
   toastT = setTimeout(() => toastEl.classList.remove("ver"), 1500);
 }
@@ -333,7 +334,7 @@ function pantallaJuego(n) {
   botonIA.addEventListener("click", () => delegar(n));
 
   const api = {
-    sonar, vibrar, aviso,
+    sonar(t) { sonar(t); if (t === "bien") acierto(); }, progreso: acierto, vibrar, aviso,
     sacudir() { app.classList.remove("sacude"); void app.offsetWidth; app.classList.add("sacude"); },
     tentar() {
       botonIA.classList.add("tienta");
@@ -382,7 +383,7 @@ function delegar(n) {
   if (detenerJuego) { detenerJuego(); detenerJuego = null; }
   activarAudio();
   sonar("ia");
-  if (window.Estatica) Estatica.distorsionar(1.2);
+  if (window.Estatica) { Estatica.distorsionar(1.2); Estatica.empeorar(); }
   const capa = document.getElementById("cargandoIA");
   capa.classList.remove("oculto", "activo");
   void capa.offsetWidth;

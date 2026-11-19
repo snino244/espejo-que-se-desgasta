@@ -101,6 +101,7 @@ function recibir(msg) {
     case "propio":    alResolverSola(); break;
     case "delegado":  alDelegar(); break;
     case "fin":       setTimeout(mostrarFinal, 1800); break;
+    case "acierto":   if (window.Estatica) Estatica.mejorar(); break;
   }
 }
 
@@ -151,7 +152,7 @@ function alDelegar() {
   if (delegaciones >= 5) return;
   delegaciones++;
   falla = 1.1;
-  if (window.Estatica) Estatica.distorsionar(1.3);
+  if (window.Estatica) { Estatica.distorsionar(1.3); Estatica.empeorar(); }
   avisar("Tu reflejo perdió " + RASGOS[delegaciones - 1], "mal");
   actualizarBateria();
 }

@@ -17,6 +17,7 @@
 
   let ruido = 1, objetivo = 1;   // cantidad de estática (1 = máxima)
   let distorsion = 0;            // interferencia fuerte, decae sola
+  let progreso = 0;              // 0 = pura estática, 1 = nítido (sube con cada acierto)
   let claridad = 0;              // destello de nitidez momentáneo (acierto)
   let barra = Math.random();     // franja que baja por la pantalla
   let cintas = [], lluvia = 0;
@@ -148,6 +149,8 @@
     }
   }
 
+  function fijar() { objetivo = Math.pow(1 - progreso, 1.4); }
+
   function montar() {
     document.body.prepend(lienzo);
     ajustar();
@@ -157,10 +160,14 @@
 
   window.Estatica = {
     // curva marcada: cada acierto se nota
-    nitidez(v) { v = Math.max(0, Math.min(1, v)); objetivo = Math.pow(1 - v, 1.6); claridad = 0.6; },
-    destello() { claridad = Math.max(claridad, 0.35); },
+    nitidez(v) { progreso = Math.max(progreso, Math.min(1, v)); fijar(); claridad = 0.6; },
+    // cada acierto deja el fondo un poco menos distorsionado (y no vuelve atrás)
+    mejorar(d = 0.035) { progreso = Math.min(1, progreso + d); fijar(); claridad = Math.max(claridad, 0.3); },
+    // delegar a la IA lo empeora un poco
+    empeorar(d = 0.08) { progreso = Math.max(0, progreso - d); fijar(); },
+    destello() { this.mejorar(); },
     distorsionar(f = 1) { distorsion = Math.min(1.4, distorsion + f); },
     serpentinas(seg = 6) { lluvia = seg; for (let i = 0; i < 40; i++) cintas.push(nuevaCinta(false)); },
-    reiniciar() { objetivo = 1; ruido = 1; distorsion = 0; claridad = 0; cintas = []; lluvia = 0; },
+    reiniciar() { progreso = 0; objetivo = 1; ruido = 1; distorsion = 0; claridad = 0; cintas = []; lluvia = 0; },
   };
 })();
