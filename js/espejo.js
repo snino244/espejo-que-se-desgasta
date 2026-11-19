@@ -35,6 +35,7 @@ let delegaciones = 0, propias = 0;
 let brillo = 0, falla = 0;
 let foto = null;          // canvas con la foto original (720 x 960)
 let parches = [];         // 5 canvases: lo que tapa cada rasgo
+let tamRasgo = [10, 10, 20, 15];
 let mascaras = [];        // 5 canvases: forma (nítida) de cada rasgo, para el pixelado
 let visibles = [0, 0, 0, 0, 0];  // opacidad animada de cada parche
 let caraDetectada = false;
@@ -325,9 +326,22 @@ function crearMascaras(cara) {
     const c = document.createElement("canvas"); c.width = FOTO.ancho; c.height = FOTO.alto;
     const x = c.getContext("2d"); x.fillStyle = "#000"; dibujo(x); return c;
   };
-  const elipses = (lista, k) => nueva((x) => { rutaElipses(x, lista, k); x.fill(); });
+  const elipses = (lista) => nueva((x) => { rutaElipses(x, lista, 1); x.fill(); });
+  // Con rostro detectado: zonas ajustadas a cada rasgo (la ceja no toca el ojo)
+  let cejas = z.cejas, ojos = z.ojos, nariz = z.nariz, boca = z.boca;
+  if (cara) {
+    const pad = z.ovalo.rx * 0.015;
+    cejas = PUNTOS.cejas.map((p) => elipseDe(cara, p, 1.08, 1.25, pad));
+    ojos  = PUNTOS.ojos.map((p) => elipseDe(cara, p, 1.12, 1.45, pad));
+    nariz = PUNTOS.nariz.map((p) => elipseDe(cara, p, 1.1, 1.05, pad));
+    boca  = PUNTOS.boca.map((p) => elipseDe(cara, p, 1.08, 1.25, pad));
+  } else {
+    const achica = (l) => l.map((e) => ({ ...e, rx: e.rx * 0.85, ry: e.ry * 0.8 }));
+    cejas = achica(cejas); ojos = achica(ojos);
+  }
+  tamRasgo = [cejas, ojos, nariz, boca].map((l) => Math.min(...l.map((e) => e.ry)));
   return [
-    elipses(z.cejas, 1.15), elipses(z.ojos, 1.15), elipses(z.nariz, 1.1), elipses(z.boca, 1.15),
+    elipses(cejas), elipses(ojos), elipses(nariz), elipses(boca),
     nueva((x) => {
       x.beginPath();
       if (z.contorno) { z.contorno.forEach((p, k) => (k ? x.lineTo(p.x, p.y) : x.moveTo(p.x, p.y))); x.closePath(); }
@@ -427,7 +441,9 @@ function censura(i) {
 }
 function pixelado(i, v, temblor) {
   const W = foto.width, H = foto.height;
-  const bloque = Math.round(4 + v * (i === 4 ? 44 : 30));
+  // bloques proporcionales al rasgo: pequeños en cejas y ojos, grandes en todo el rostro
+  const final = i === 4 ? 36 : Math.max(6, Math.min(18, tamRasgo[i] * 0.55));
+  const bloque = Math.max(2, Math.round(2 + v * (final - 2)));
   lienzoChico.width = Math.ceil(W / bloque); lienzoChico.height = Math.ceil(H / bloque);
   const c1 = lienzoChico.getContext("2d");
   c1.imageSmoothingEnabled = true;
