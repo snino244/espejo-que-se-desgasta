@@ -1,5 +1,5 @@
-@font-face { font-family: "Plane Crash"; src: url("../fonts/plane_crash.ttf") format("truetype"); font-display: swap; }
-@font-face { font-family: "Nu Century Gothic"; src: url("../fonts/nu_century_gothic.ttf") format("truetype"); font-display: swap; }
+@font-face { font-family: "Plane Crash"; src: url("../fonts/plane_crash.ttf?v=4") format("truetype"); font-display: swap; }
+@font-face { font-family: "Nu Century Gothic"; src: url("../fonts/nu_century_gothic.ttf?v=4") format("truetype"); font-display: swap; }
 
 :root {
   --panel: rgba(255,255,255,.9); --borde: #c3c8d3; --texto: #12151f; --suave: #2b3244; --tenue: #5b6476;
