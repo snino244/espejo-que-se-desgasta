@@ -35,6 +35,7 @@ let delegaciones = 0, propias = 0;
 let brillo = 0, falla = 0;
 let foto = null;          // canvas con la foto original (720 x 960)
 let parches = [];         // 5 canvases: lo que tapa cada rasgo
+let mascaras = [];        // 5 canvases: forma (nítida) de cada rasgo, para el pixelado
 let visibles = [0, 0, 0, 0, 0];  // opacidad animada de cada parche
 let caraDetectada = false;
 
@@ -128,6 +129,8 @@ async function recibirFoto(datos) {
   caraDetectada = !!cara;
   if (!cara) console.info("No se detectó el rostro; se usa la posición del óvalo guía.");
   parches = crearParches(c, cara);
+  mascaras = crearMascaras(cara);
+  censurados.length = 0;
   foto = c;
   visibles = visibles.map((_, i) => (i < delegaciones ? 1 : 0));
   mostrarEtapa(null);
@@ -314,6 +317,25 @@ function crearParches(fuente, cara) {
   return [parche(z.cejas), parche(z.ojos), parche(z.nariz), parche(z.boca), parcheRostro()];
 }
 
+// Formas de cada rasgo con borde firme (para que la censura se vea como mosaico)
+function crearMascaras(cara) {
+  const z = zonas(cara);
+  const nueva = (dibujo) => {
+    const c = document.createElement("canvas"); c.width = FOTO.ancho; c.height = FOTO.alto;
+    const x = c.getContext("2d"); x.fillStyle = "#000"; dibujo(x); return c;
+  };
+  const elipses = (lista, k) => nueva((x) => { rutaElipses(x, lista, k); x.fill(); });
+  return [
+    elipses(z.cejas, 1.15), elipses(z.ojos, 1.15), elipses(z.nariz, 1.1), elipses(z.boca, 1.15),
+    nueva((x) => {
+      x.beginPath();
+      if (z.contorno) { z.contorno.forEach((p, k) => (k ? x.lineTo(p.x, p.y) : x.moveTo(p.x, p.y))); x.closePath(); }
+      else x.ellipse(z.ovalo.cx, z.ovalo.cy, z.ovalo.rx, z.ovalo.ry, 0, 0, Math.PI * 2);
+      x.fill();
+    }),
+  ];
+}
+
 // ------------------------------------------------------------
 //  Dibujo
 // ------------------------------------------------------------
@@ -361,13 +383,9 @@ function dibujar(ahora) {
       visibles[i] += Math.sign(meta - visibles[i]) * Math.min(Math.abs(meta - visibles[i]), dt * vel);
       const v = visibles[i];
       if (v > 0.001 && parches[i]) {
-        const borrado = meta ? suave((v - 0.45) / 0.55) : v;
-        if (meta && v < 1) {
-          ctx.globalAlpha = Math.min(1, v * 5) * (1 - borrado * 0.85);
-          ctx.drawImage(pixelado(i, v), m.x, m.y, m.w, m.h);
-        }
-        ctx.globalAlpha = borrado;
-        ctx.drawImage(parches[i], m.x, m.y, m.w, m.h);
+        // el pixelado crece hasta quedar como censura (mosaico de bloques grandes)
+        ctx.globalAlpha = Math.min(1, v * 4);
+        ctx.drawImage(v >= 1 ? censura(i) : pixelado(i, v, true), m.x, m.y, m.w, m.h);
         ctx.globalAlpha = 1;
       }
     }
@@ -396,9 +414,19 @@ const suave = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * 
 // Versión pixelada de la foto, recortada a la forma del rasgo i.
 const lienzoChico = document.createElement("canvas");
 const lienzoPixel = document.createElement("canvas");
-function pixelado(i, v) {
+const censurados = [];
+function censura(i) {
+  if (!censurados[i]) {
+    const c = document.createElement("canvas");
+    c.width = foto.width; c.height = foto.height;
+    c.getContext("2d").drawImage(pixelado(i, 1, false), 0, 0);
+    censurados[i] = c;
+  }
+  return censurados[i];
+}
+function pixelado(i, v, temblor) {
   const W = foto.width, H = foto.height;
-  const bloque = Math.round(5 + v * 40);
+  const bloque = Math.round(4 + v * (i === 4 ? 44 : 30));
   lienzoChico.width = Math.ceil(W / bloque); lienzoChico.height = Math.ceil(H / bloque);
   const c1 = lienzoChico.getContext("2d");
   c1.imageSmoothingEnabled = true;
@@ -409,10 +437,10 @@ function pixelado(i, v) {
   c2.clearRect(0, 0, W, H);
   c2.imageSmoothingEnabled = false;
   // corrimiento aleatorio para que se vea como señal dañada
-  const dx = (Math.random() - 0.5) * bloque * 0.6;
+  const dx = temblor ? (Math.random() - 0.5) * bloque * 0.6 : 0;
   c2.drawImage(lienzoChico, dx, 0, lienzoChico.width * bloque, lienzoChico.height * bloque);
   c2.globalCompositeOperation = "destination-in";
-  c2.drawImage(parches[i], 0, 0);
+  c2.drawImage(mascaras[i], 0, 0);
   c2.globalCompositeOperation = "source-over";
   return lienzoPixel;
 }

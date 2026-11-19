@@ -12,7 +12,7 @@ body { background:transparent; font-family:"Nu Century Gothic", "Century Gothic"
 .oculto { display:none !important; }
 .etiqueta-blanca { background:rgba(255,255,255,.88); border-radius:10px; padding:4px 12px; }
 
-#titulo { top:20px; left:24px; font-family:var(--titulos); font-size:22px; letter-spacing:2px; color:var(--tinta); background:rgba(255,255,255,.88); border-radius:10px; padding:6px 14px; }
+#titulo { top:20px; left:24px; font-family:var(--titulos); text-transform:lowercase; font-size:22px; letter-spacing:2px; color:var(--tinta); background:rgba(255,255,255,.88); border-radius:10px; padding:6px 14px; }
 #expediente { top:66px; left:24px; font-size:16px; color:var(--suave); font-weight:700; }
 #expediente:not(:empty) { background:rgba(255,255,255,.88); border-radius:10px; padding:4px 12px; }
 
@@ -28,7 +28,7 @@ body { background:transparent; font-family:"Nu Century Gothic", "Century Gothic"
 /* Panel del QR */
 .panel { left:50%; top:50%; transform:translate(-50%,-50%); width:min(380px, 86vw); text-align:center;
   background:rgba(255,255,255,.94); border:2px solid var(--tinta); border-radius:24px; padding:28px 26px; box-shadow:0 10px 40px rgba(0,0,0,.18); }
-.panel h1 { font-family:var(--titulos); font-weight:400; font-size:34px; margin:0 0 6px; line-height:1.1; }
+.panel h1 { font-family:var(--titulos); text-transform:lowercase; font-weight:400; font-size:34px; margin:0 0 6px; line-height:1.1; }
 .panel p { color:var(--suave); margin:6px 0; font-size:16px; line-height:1.4; }
 #qr { background:#fff; border-radius:14px; padding:10px; margin:16px auto 10px; width:fit-content; border:1px solid #d5d9e2; }
 #qr svg { display:block; width:240px; height:240px; }
@@ -40,7 +40,7 @@ body { background:transparent; font-family:"Nu Century Gothic", "Century Gothic"
 .mensaje-central .icono { display:flex; justify-content:center; animation:flota 1.6s ease-in-out infinite; }
 .telefono { width:46px; height:80px; border:5px solid var(--tinta); border-radius:12px; position:relative; }
 .telefono::after { content:""; position:absolute; left:50%; bottom:5px; width:12px; height:4px; margin-left:-6px; border-radius:2px; background:var(--tinta); }
-.mensaje-central h2 { font-family:var(--titulos); font-weight:400; font-size:44px; margin:14px 0 6px; }
+.mensaje-central h2 { font-family:var(--titulos); text-transform:lowercase; font-weight:400; font-size:44px; margin:14px 0 6px; }
 .mensaje-central p { font-size:20px; color:var(--suave); line-height:1.45; margin:0; }
 @keyframes flota { 50% { transform:translateY(-10px); } }
 .giro { width:54px; height:54px; margin:0 auto; border:5px solid rgba(0,0,0,.12); border-top-color:var(--naranja); border-radius:50%; animation:gira 1s linear infinite; }
@@ -64,7 +64,7 @@ body { background:transparent; font-family:"Nu Century Gothic", "Century Gothic"
 #final .tarjeta { background:rgba(255,255,255,.95); border:3px solid var(--rojo); border-radius:20px; padding:34px 44px; max-width:min(720px, 86vw); text-align:center; box-shadow:0 10px 40px rgba(0,0,0,.2); }
 #final.bueno .tarjeta { border-color:var(--verde); }
 #final .etiqueta { letter-spacing:4px; font-weight:800; color:var(--acento); font-size:14px; }
-#final h2 { font-family:var(--titulos); font-weight:400; font-size:clamp(30px, 3.8vw, 52px); margin:12px 0; line-height:1.1; }
+#final h2 { font-family:var(--titulos); text-transform:lowercase; font-weight:400; font-size:clamp(30px, 3.8vw, 52px); margin:12px 0; line-height:1.1; }
 #final p { font-size:clamp(16px, 1.6vw, 21px); color:var(--suave); margin:8px 0; line-height:1.45; }
 #final .cierre { color:var(--acento); font-weight:800; }
 #final .cifras { margin-top:18px; color:var(--suave); font-size:15px; }

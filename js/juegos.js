@@ -154,7 +154,6 @@ function juegoAterrizaje(zona, api) {
         <g id="avionAt"><image href="img/avion_lado.png" x="-30" y="-9.2" width="60" height="18.4"/></g>
       </svg>
       ${nubesHTML(3, 40)}
-      <div class="athr">A/THR <b>HOLD</b></div>
       <div class="peligro oculto" id="peligro"></div>
     </div>
     <div class="medidor">Velocidad <span style="float:right" id="falta">${DURACION} s para la pista</span></div>
@@ -298,6 +297,7 @@ function juegoTherac(zona, api) {
         <div class="fila"><span>DOSIS</span><span>${p.maquina[1]}</span></div>
         <div class="fila"><span>MODO</span><span>${p.maquina[2]}</span></div>
         <div class="fila"><span>ESTADO</span>${p.estado === "LISTO" ? "<span>LISTO</span>" : '<span class="error">' + p.estado + "</span>"}</div>
+        ${p.estado === "LISTO" ? "" : '<div class="rojo" style="margin-top:4px">ERROR SIN EXPLICACIÓN · ¿SEGUIR?</div>'}
       </div>
       <div class="medidor">Tiempo para decidir<div class="riel"><div id="reloj" style="width:100%;background:#5cff9d"></div></div></div>
       <div class="decidir">

@@ -113,6 +113,7 @@ function aviso(texto, tipo = "") {
   if (!toastEl) { toastEl = document.createElement("div"); toastEl.className = "toast"; document.body.appendChild(toastEl); }
   toastEl.textContent = texto;
   toastEl.className = "toast ver " + tipo;
+  if (tipo === "bien" && window.Estatica) Estatica.destello();
   clearTimeout(toastT);
   toastT = setTimeout(() => toastEl.classList.remove("ver"), 1500);
 }
@@ -130,7 +131,7 @@ function pintar(html) {
 }
 function cabecera(n) {
   const e = EXPEDIENTES[n];
-  return `<div class="top"><span>Expediente ${n + 1} · ${e.corto}</span><span class="racha">${estado.racha ? "Racha " + estado.racha : ""}</span></div>`;
+  return `<div class="top"><span>Expediente ${n + 1} · ${e.corto}</span><span></span></div>`;
 }
 function candados(alFinal = false) {
   return `<div class="candados">${EXPEDIENTES.map((_, k) => {
@@ -369,7 +370,7 @@ function resolverSola(n) {
     ${cabecera(n)}
     <div class="crece">
       <div class="centro" style="margin-top:26px"><span class="sello">RESUELTO</span></div>
-      <div class="centro puntos">+100 puntos de criterio${bono ? ` · +${bono} por racha` : ""}</div>
+      <div class="centro puntos">+${100 + bono} puntos de criterio</div>
       <div class="caja" style="margin-top:16px"><b>Lo que pasó de verdad:</b> ${e.revelacion}</div>
       ${e.siguiente ? `<div class="caja pista"><b style="color:#c2410c">Siguiente expediente:</b> ${e.siguiente}</div>` : ""}
       <div class="abajo"><button class="btn blanco" id="seguir">${n < 4 ? "Abrir expediente " + (n + 2) : "Ver el último expediente"}</button></div>

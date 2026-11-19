@@ -17,6 +17,7 @@
 
   let ruido = 1, objetivo = 1;   // cantidad de estática (1 = máxima)
   let distorsion = 0;            // interferencia fuerte, decae sola
+  let claridad = 0;              // destello de nitidez momentáneo (acierto)
   let barra = Math.random();     // franja que baja por la pantalla
   let cintas = [], lluvia = 0;
   const COLORES = ["#ff4d6d", "#ffb703", "#3a86ff", "#2ec27e", "#9b5de5", "#ff7b00", "#00b4d8"];
@@ -57,9 +58,10 @@
 
     ruido += (objetivo - ruido) * Math.min(1, dt * 1.5);
     distorsion = Math.max(0, distorsion - dt * 0.7);
+    claridad = Math.max(0, claridad - dt * 0.8);
     barra = (barra + dt * 0.18) % 1.2;
     const W = innerWidth, H = innerHeight;
-    const nivel = Math.min(1, ruido + distorsion * 0.8);
+    const nivel = Math.max(0, Math.min(1, ruido + distorsion * 0.8) - claridad);
 
     {
       if (nivel < 0.01) {
@@ -154,9 +156,11 @@
   if (document.body) montar(); else addEventListener("DOMContentLoaded", montar);
 
   window.Estatica = {
-    nitidez(v) { objetivo = Math.max(0, Math.min(1, 1 - v)); },
+    // curva marcada: cada acierto se nota
+    nitidez(v) { v = Math.max(0, Math.min(1, v)); objetivo = Math.pow(1 - v, 1.6); claridad = 0.6; },
+    destello() { claridad = Math.max(claridad, 0.35); },
     distorsionar(f = 1) { distorsion = Math.min(1.4, distorsion + f); },
     serpentinas(seg = 6) { lluvia = seg; for (let i = 0; i < 40; i++) cintas.push(nuevaCinta(false)); },
-    reiniciar() { objetivo = 1; ruido = 1; distorsion = 0; cintas = []; lluvia = 0; },
+    reiniciar() { objetivo = 1; ruido = 1; distorsion = 0; claridad = 0; cintas = []; lluvia = 0; },
   };
 })();
