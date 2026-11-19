@@ -9,6 +9,17 @@
 const azar = (a, b) => a + Math.random() * (b - a);
 const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
 
+// Nubes (imágenes) que cruzan una escena de lado a lado
+function nubesHTML(cuantas, alto = 70) {
+  let h = "";
+  for (let k = 0; k < cuantas; k++) {
+    const n = 1 + Math.floor(Math.random() * 5);
+    const dur = azar(14, 26), retraso = -azar(0, dur);
+    h += `<img class="nube" src="img/nube${n}.png" alt="" style="top:${azar(2, alto)}%;left:0;animation-duration:${dur}s;animation-delay:${retraso}s">`;
+  }
+  return h;
+}
+
 // Bucle de animación con tiempo (dt en segundos)
 function bucle(fn) {
   let vivo = true, antes = performance.now();
@@ -32,20 +43,18 @@ function juegoAvion(zona, api) {
   const DERECHO = 12;   // grados de tolerancia
   const STALL = 35;     // grados a partir de los cuales el avión pierde sustentación
   zona.innerHTML = `
-    <div class="alerta-roja">⚠ PILOTO AUTOMÁTICO DESCONECTADO</div>
+    <div class="alerta-roja">PILOTO AUTOMÁTICO DESCONECTADO</div>
     <div class="horizonte">
-      <div class="mundo"></div>
+      ${nubesHTML(5, 80)}
       <div class="zona-ok"></div>
-      <div class="avion" id="avion"></div>
-      <div class="flecha izq oculto">⟵</div><div class="flecha der oculto">⟶</div>
-      <div class="stall oculto">STALL</div>
+      <img class="avion" id="avion" src="img/avion_frente.png" alt="Avión">
+      <svg class="flecha izq oculto" viewBox="0 0 56 40"><path d="M4 20 L24 4 L24 13 L52 13 L52 27 L24 27 L24 36 Z" fill="#fff" stroke="#12151f" stroke-width="2.5" stroke-linejoin="round"/></svg><svg class="flecha der oculto" viewBox="0 0 56 40"><path d="M52 20 L32 4 L32 13 L4 13 L4 27 L32 27 L32 36 Z" fill="#fff" stroke="#12151f" stroke-width="2.5" stroke-linejoin="round"/></svg>
     </div>
     <div class="centro texto" id="instr">Endereza el avión: inclina el celular (o mueve la barra) hacia donde indique la flecha.</div>
     <input type="range" class="deslizador" min="-60" max="60" value="0" step="1" aria-label="Control del avión">
     <div class="medidor">Avión derecho <span id="seg" style="float:right">0 / ${META} s</span><div class="riel"><div id="barraControl"></div></div></div>
     <div class="medidor">Sustentación<div class="riel"><div id="barraSust" style="width:100%;background:#6ee7a2"></div></div></div>`;
   const avion = zona.querySelector("#avion");
-  const stall = zona.querySelector(".stall");
   const desl = zona.querySelector(".deslizador");
   const flechaIzq = zona.querySelector(".flecha.izq");
   const flechaDer = zona.querySelector(".flecha.der");
@@ -94,14 +103,13 @@ function juegoAvion(zona, api) {
     flechaIzq.classList.toggle("oculto", a < DERECHO * 0.6);
     flechaDer.classList.toggle("oculto", a > -DERECHO * 0.6);
 
-    if (abs < DERECHO) { nivelado += dt; sust = Math.min(100, sust + 15 * dt); stall.classList.add("oculto"); }
+    if (abs < DERECHO) { nivelado += dt; sust = Math.min(100, sust + 15 * dt); }
     else if (abs > STALL) {
       sust -= 26 * dt;
-      stall.classList.remove("oculto");
       tiempoAlarma -= dt;
       if (tiempoAlarma <= 0) { api.sonar("stall"); api.vibrar(120); tiempoAlarma = 0.6; }
       if (!tentado && sust < 60) { tentado = true; api.tentar(); }
-    } else { sust -= 5 * dt; stall.classList.add("oculto"); }
+    } else { sust -= 5 * dt; }
 
     barraC.style.width = Math.min(100, (nivelado / META) * 100) + "%";
     barraS.style.width = Math.max(0, sust) + "%";
@@ -132,16 +140,20 @@ function juegoAterrizaje(zona, api) {
   zona.innerHTML = `
     <div class="cabina">
       <svg class="escena" viewBox="0 0 300 190">
-        <defs><linearGradient id="cieloAt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f3a35c"/><stop offset="1" stop-color="#ffd9a0"/></linearGradient></defs>
+        <defs><linearGradient id="cieloAt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a90d9"/><stop offset="1" stop-color="#cfe7fb"/></linearGradient>
+          <linearGradient id="marAt" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2b78b5"/><stop offset="1" stop-color="#174d7a"/></linearGradient></defs>
         <rect width="300" height="190" fill="url(#cieloAt)"/>
-        <rect y="140" width="300" height="50" fill="#2f5d7c"/>
+        <rect y="140" width="300" height="50" fill="url(#marAt)"/>
+        <g class="ola"><path d="M-40 146 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#9fd3f5" stroke-width="1.6" opacity=".8"/></g>
+        <g class="ola b"><path d="M-40 158 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#7fbde8" stroke-width="1.4" opacity=".7"/></g>
+        <g class="ola"><path d="M-40 172 q10 -4 20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0 t20 0" fill="none" stroke="#6aaedc" stroke-width="1.2" opacity=".6"/></g>
         <rect x="196" y="134" width="104" height="10" fill="#4b4f57"/>
         <rect x="200" y="138" width="96" height="2" fill="#fff" opacity=".8"/>
         <rect x="186" y="128" width="10" height="16" fill="#8a8f99"/>
-        <text x="183" y="138" font-size="9" fill="#5a2a1a" text-anchor="end">muro</text>
         <line x1="24" y1="34" x2="210" y2="132" stroke="#fff" stroke-dasharray="4 4" opacity=".6"/>
-        <g id="avionAt"><path d="M-14 0 L10 -2 L14 0 L10 2 Z M-4 -1 L-8 -9 L-3 -9 L3 -1 Z M-4 1 L-8 9 L-3 9 L3 1 Z M-14 0 L-16 -5 L-12 -5 L-10 -1 Z" fill="#1d2433"/></g>
+        <g id="avionAt"><image href="img/avion_lado.png" x="-30" y="-9.2" width="60" height="18.4"/></g>
       </svg>
+      ${nubesHTML(3, 40)}
       <div class="athr">A/THR <b>HOLD</b></div>
       <div class="peligro oculto" id="peligro"></div>
     </div>
@@ -151,7 +163,7 @@ function juegoAterrizaje(zona, api) {
       <div class="aguja-v" id="agujaV"></div>
       <span class="et izq">muy lento</span><span class="et der">muy rápido</span>
     </div>
-    <button class="btn blanco acelerar" id="acelerar">▲ ACELERAR<br><small>mantén presionado</small></button>`;
+    <button class="btn blanco acelerar" id="acelerar">ACELERAR<br><small>mantén presionado</small></button>`;
 
   const avion = zona.querySelector("#avionAt");
   const aguja = zona.querySelector("#agujaV");
@@ -185,7 +197,7 @@ function juegoAterrizaje(zona, api) {
     // Avión bajando hacia la pista
     const p = Math.min(1, t / DURACION);
     const x = 24 + p * 186, y = 34 + p * 98 + (v < MIN ? (MIN - v) * 0.5 * p : 0);
-    avion.setAttribute("transform", `translate(${x} ${y}) rotate(${28 - (v - 50) * 0.3}) scale(1.7)`);
+    avion.setAttribute("transform", `translate(${x} ${y}) rotate(${28 - (v - 50) * 0.3})`);
     aguja.style.left = `calc(${v}% - 3px)`;
     falta.textContent = Math.max(0, Math.ceil(DURACION - t)) + " s para la pista";
 
@@ -193,7 +205,7 @@ function juegoAterrizaje(zona, api) {
     if (lento || rapido) {
       fuera += dt;
       aviso.classList.remove("oculto");
-      aviso.textContent = lento ? "⚠ VELOCIDAD BAJA" : "⚠ DEMASIADO RÁPIDO";
+      aviso.textContent = lento ? "VELOCIDAD BAJA" : "DEMASIADO RÁPIDO";
       alarma -= dt;
       if (alarma <= 0) { api.sonar("stall"); api.vibrar(100); alarma = 0.6; }
       if (!tentado && fuera > 1) { tentado = true; api.tentar(); }
@@ -257,6 +269,10 @@ function generarPacientes() {
 //  EXPEDIENTE 3 · Malfunction 54 (Therac-25)
 //  Decidir con cada paciente si se aplica o se detiene el tratamiento.
 // ------------------------------------------------------------
+const FIRMAS = ["R. Hollis", "M. Kessler", "A. Duarte", "J. Whitman", "L. Barrow", "S. Ortega"];
+// Letra de médico: minúsculas con mayúscula inicial (se lee, pero cuesta un poco)
+const manuscrito = (t) => t.toLowerCase().replace(/(^|[\s.])([a-záéíóúñ])/g, (m, a, b) => a + b.toUpperCase());
+
 function juegoTherac(zona, api) {
   // Cada partida arma 6 casos nuevos: 2 seguros y 4 con un error distinto,
   // con nombres y dosis al azar, en orden aleatorio.
@@ -267,14 +283,17 @@ function juegoTherac(zona, api) {
   function pintar() {
     const p = PACIENTES[i];
     zona.innerHTML = `
+      <div class="receta">
+        <div class="membrete"><span>EAST TEXAS CANCER CENTER · RADIOTERAPIA</span><span>Turno ${i + 1}/${PACIENTES.length}</span></div>
+        <div class="rp">
+          <div class="renglon"><small>PACIENTE</small><span>${manuscrito(p.receta[0])}</span></div>
+          <div class="renglon"><small>DOSIS</small><span>${p.receta[1]}</span></div>
+          <div class="renglon"><small>MODO</small><span>${manuscrito(p.receta[2])}</span></div>
+        </div>
+        <div class="firma">Dr. ${FIRMAS[i % FIRMAS.length]}</div>
+      </div>
       <div class="consola">
-        <div>THERAC-25 · TRATAMIENTO</div>
-        <div class="fila"><span>TURNO</span><span>0${i + 1} / 0${PACIENTES.length}</span></div>
-        <div style="color:#2fae66;margin-top:6px">— RECETA DEL MÉDICO —</div>
-        <div class="fila"><span>PACIENTE</span><span>${p.receta[0]}</span></div>
-        <div class="fila"><span>DOSIS</span><span>${p.receta[1]}</span></div>
-        <div class="fila"><span>MODO</span><span>${p.receta[2]}</span></div>
-        <div style="color:#2fae66;margin-top:6px">— PANTALLA DE LA MÁQUINA —</div>
+        <div>THERAC-25 · PANTALLA DE LA MÁQUINA</div>
         <div class="fila"><span>PACIENTE</span><span>${p.maquina[0]}</span></div>
         <div class="fila"><span>DOSIS</span><span>${p.maquina[1]}</span></div>
         <div class="fila"><span>MODO</span><span>${p.maquina[2]}</span></div>
@@ -285,7 +304,7 @@ function juegoTherac(zona, api) {
         <button class="aplicar">${p.estado === "LISTO" ? "APLICAR" : "P · CONTINUAR"}</button>
         <button class="detener">DETENER</button>
       </div>
-      <div class="sala">Sala de espera: ${"🧑 ".repeat(PACIENTES.length - i - 1) || "vacía"} · Aciertos: ${aciertos}</div>`;
+      <div class="sala">Sala de espera: ${PACIENTES.length - i - 1 ? `<span class="gente">${'<img src="img/personas.png" alt="paciente">'.repeat(PACIENTES.length - i - 1)}</span>` : "vacía"} · Aciertos: ${aciertos}</div>`;
     zona.querySelector(".aplicar").addEventListener("click", () => decidir(true));
     zona.querySelector(".detener").addEventListener("click", () => decidir(false));
     resto = TIEMPO;
@@ -297,10 +316,10 @@ function juegoTherac(zona, api) {
     bloqueado = true;
     const p = PACIENTES[i];
     const bien = aplicar === p.seguro;
-    if (bien) { aciertos++; api.aviso(aplicar ? "✔ Tratamiento correcto" : "✔ Bien visto: " + p.motivo.toLowerCase(), "bien"); api.sonar("bien"); }
+    if (bien) { aciertos++; api.aviso(aplicar ? "Tratamiento correcto" : "Bien visto: " + p.motivo.toLowerCase(), "bien"); api.sonar("bien"); }
     else {
       errores++;
-      if (aplicar) { api.aviso("☢ Sobredosis de radiación", "mal"); api.sonar("alarma"); api.vibrar([100, 60, 200]); api.sacudir(); }
+      if (aplicar) { api.aviso("Sobredosis de radiación", "mal"); api.sonar("alarma"); api.vibrar([100, 60, 200]); api.sacudir(); }
       else { api.aviso("Detuviste un tratamiento seguro", "mal"); api.sonar("error"); }
       api.tentar();
     }
@@ -342,18 +361,21 @@ function juegoTherac(zona, api) {
 function juegoCamino(zona, api) {
   const META = 6;
   const NOTIS = [
-    ["💬 Grupo del parcial", "¿Alguien hizo el taller? 😩"],
-    ["❤️ Instagram", "A Sofi le gustó tu foto"],
-    ["📺 Nuevo video", "10 trucos que nadie te contó…"],
-    ["💬 Mamá", "¿Ya llegaste?"],
-    ["🔔 Recordatorio", "Entrega del proyecto: mañana"],
-    ["🎵 Música", "Tu playlist de la semana está lista"],
-    ["📦 Pedido", "Tu paquete va en camino"],
-    ["💬 Juan", "jajaja mira esto 😂😂"],
-    ["🎮 Juego", "¡Tus vidas se recargaron!"],
+    ["Grupo del parcial", "¿Alguien hizo el taller?"],
+    ["Instagram", "A Sofi le gustó tu foto"],
+    ["Nuevo video", "10 trucos que nadie te contó…"],
+    ["Mamá", "¿Ya llegaste?"],
+    ["Recordatorio", "Entrega del proyecto: mañana"],
+    ["Música", "Tu playlist de la semana está lista"],
+    ["Pedido", "Tu paquete va en camino"],
+    ["Juan", "jajaja mira esto"],
+    ["Juego", "¡Tus vidas se recargaron!"],
   ];
-  const OBST = ["🚲", "🚶", "🐕", "🚲", "🛴"];
-  const ORILLA = ["🌳", "🌲", "🪧", "🌳", "🗑️"];   // cosas al borde del camino: NO hay que frenar
+  // Carros que vienen por la vía (hay que frenar) y cosas a la orilla (no hay que frenar)
+  const OBST = ["verde", "rojo", "vino", "naranja"].map((c) => { const im = new Image(); im.src = `img/carro_${c}.png`; return im; });
+  const ORILLA = ["arbol", "pino", "letrero", "arbol"];
+  const nubesNoche = [1, 3, 5].map((n) => { const im = new Image(); im.src = `img/nube${n}.png`; return im; });
+  const nubesX = [azar(0, 1), azar(0, 1), azar(0, 1)];
   zona.innerHTML = `
     <div class="camino"><canvas></canvas><div class="notis"></div></div>
     <div class="contador">${"<span></span>".repeat(META)}</div>
@@ -378,7 +400,7 @@ function juegoCamino(zona, api) {
     const [t, m] = NOTIS[Math.floor(Math.random() * NOTIS.length)];
     const d = document.createElement("div");
     d.className = "noti";
-    d.innerHTML = `<div><b>${t}</b>${m}</div><button class="x">✕</button>`;
+    d.innerHTML = `<div><b>${t}</b>${m}</div><button class="x" aria-label="Cerrar"></button>`;
     d.querySelector(".x").addEventListener("click", () => d.remove());
     notis.appendChild(d);
     api.vibrar(40);
@@ -394,7 +416,7 @@ function juegoCamino(zona, api) {
     if (obst && !obst.orilla && obst.z > 0.45) {
       ok++;
       puntos[ok - 1].classList.add("ok");
-      api.aviso("✔ Frenaste a tiempo", "bien");
+      api.aviso("Frenaste a tiempo", "bien");
       api.sonar("bien");
       obst = null;
       esperaObst = azar(2, 3.4);
@@ -412,6 +434,22 @@ function juegoCamino(zona, api) {
       api.sonar("error");
     }
   });
+
+  // Árboles y letreros dibujados (sin emojis)
+  function dibujarOrilla(tipo, x, y, t) {
+    if (tipo === "letrero") {
+      ctx.fillStyle = "#6b4a2b"; ctx.fillRect(x - t * 0.04, y - t * 0.75, t * 0.08, t * 0.75);
+      ctx.fillStyle = "#f1c232"; ctx.save(); ctx.translate(x, y - t * 0.8); ctx.rotate(Math.PI / 4);
+      ctx.fillRect(-t * 0.18, -t * 0.18, t * 0.36, t * 0.36); ctx.strokeStyle = "#222"; ctx.lineWidth = t * 0.025; ctx.strokeRect(-t * 0.15, -t * 0.15, t * 0.3, t * 0.3); ctx.restore();
+      return;
+    }
+    ctx.fillStyle = "#5a3b22"; ctx.fillRect(x - t * 0.05, y - t * 0.35, t * 0.1, t * 0.35);
+    ctx.fillStyle = tipo === "pino" ? "#14532d" : "#1f7a35";
+    ctx.beginPath();
+    if (tipo === "pino") { ctx.moveTo(x, y - t * 1.05); ctx.lineTo(x + t * 0.3, y - t * 0.3); ctx.lineTo(x - t * 0.3, y - t * 0.3); }
+    else { ctx.arc(x, y - t * 0.6, t * 0.32, 0, Math.PI * 2); ctx.arc(x - t * 0.18, y - t * 0.45, t * 0.22, 0, Math.PI * 2); ctx.arc(x + t * 0.18, y - t * 0.45, t * 0.22, 0, Math.PI * 2); }
+    ctx.fill();
+  }
 
   const parar = bucle((dt) => {
     if (fin) return;
@@ -439,34 +477,64 @@ function juegoCamino(zona, api) {
       if (obst && !obst.orilla && obst.z >= 0.95) { fin = true; api.sonar("choque"); api.vibrar([200, 80, 300]); api.perder("No frenaste a tiempo. En Tempe, la persona de respaldo iba mirando su celular."); }
     }
 
-    // Dibujo
-    ctx.fillStyle = "#0c0f18"; ctx.fillRect(0, 0, W, H);
+    // Dibujo: noche con luna, nubes y pasto
+    const dpr = devicePixelRatio;
     const cielo = ctx.createLinearGradient(0, 0, 0, hz);
-    cielo.addColorStop(0, "#0a0d16"); cielo.addColorStop(1, "#1b2238");
+    cielo.addColorStop(0, "#0b1430"); cielo.addColorStop(1, "#27407a");
     ctx.fillStyle = cielo; ctx.fillRect(0, 0, W, hz);
-    ctx.fillStyle = "#2a2e38";
+    // luna
+    const lx = W * 0.8, ly = hz * 0.42, lr = hz * 0.22;
+    const halo = ctx.createRadialGradient(lx, ly, lr * 0.5, lx, ly, lr * 2.6);
+    halo.addColorStop(0, "rgba(255,250,220,.35)"); halo.addColorStop(1, "rgba(255,250,220,0)");
+    ctx.fillStyle = halo; ctx.fillRect(lx - lr * 3, 0, lr * 6, hz);
+    ctx.fillStyle = "#fdf6d8"; ctx.beginPath(); ctx.arc(lx, ly, lr, 0, Math.PI * 2); ctx.fill();
+    ctx.fillStyle = "rgba(200,190,150,.35)";
+    ctx.beginPath(); ctx.arc(lx - lr * 0.3, ly - lr * 0.2, lr * 0.18, 0, 7); ctx.arc(lx + lr * 0.25, ly + lr * 0.3, lr * 0.12, 0, 7); ctx.fill();
+    // nubes que pasan despacio
+    nubesNoche.forEach((im, k) => {
+      if (!im.complete || !im.naturalWidth) return;
+      nubesX[k] = (nubesX[k] - dt * (0.012 + k * 0.006) + 1.6) % 1.6;
+      const w = W * (0.38 + k * 0.08), h = w * im.naturalHeight / im.naturalWidth;
+      ctx.globalAlpha = 0.55;
+      ctx.drawImage(im, (nubesX[k] - 0.3) * W, hz * (0.12 + k * 0.22), w, h);
+      ctx.globalAlpha = 1;
+    });
+    // pasto
+    const pasto = ctx.createLinearGradient(0, hz, 0, H);
+    pasto.addColorStop(0, "#1d4d24"); pasto.addColorStop(1, "#2f7a35");
+    ctx.fillStyle = pasto; ctx.fillRect(0, hz, W, H - hz);
+    ctx.fillStyle = "rgba(120,190,90,.25)";
+    for (let k = 0; k < 10; k++) {
+      const z0 = ((k + desplaz) / 10), y0 = hz + z0 * z0 * (H - hz);
+      ctx.fillRect(0, y0, W, Math.max(1, z0 * 5 * dpr));
+    }
+    // vía
+    ctx.fillStyle = "#3a3d45";
     ctx.beginPath(); ctx.moveTo(W * 0.47, hz); ctx.lineTo(W * 0.53, hz); ctx.lineTo(W * 1.05, H); ctx.lineTo(-W * 0.05, H); ctx.closePath(); ctx.fill();
+    ctx.strokeStyle = "rgba(255,255,255,.7)"; ctx.lineWidth = 2 * dpr;
+    ctx.beginPath(); ctx.moveTo(W * 0.47, hz); ctx.lineTo(-W * 0.05, H); ctx.moveTo(W * 0.53, hz); ctx.lineTo(W * 1.05, H); ctx.stroke();
     // luces del carro
     const luz = ctx.createRadialGradient(W / 2, H, 10, W / 2, H, H * 0.75);
-    luz.addColorStop(0, "rgba(255,240,190,.28)"); luz.addColorStop(1, "rgba(255,240,190,0)");
+    luz.addColorStop(0, "rgba(255,240,190,.25)"); luz.addColorStop(1, "rgba(255,240,190,0)");
     ctx.fillStyle = luz; ctx.fillRect(0, hz, W, H - hz);
     // líneas del carril
     ctx.fillStyle = "#ffd76a";
     for (let k = 0; k < 8; k++) {
       const z0 = ((k + desplaz) / 8), z1 = z0 + 0.05;
       const y0 = hz + z0 * z0 * (H - hz), y1 = hz + Math.min(1, z1) ** 2 * (H - hz);
-      const w0 = 1 + z0 * 7 * devicePixelRatio;
+      const w0 = 1 + z0 * 7 * dpr;
       ctx.fillRect(W / 2 - w0 / 2, y0, w0, Math.max(1, y1 - y0));
     }
-    // obstáculo
+    // carro que se acerca, o algo a la orilla
     if (obst) {
       const y = hz + obst.z * obst.z * (H - hz);
-      const tam = (20 + obst.z * 80) * devicePixelRatio;
+      const tam = (14 + obst.z * 110) * dpr;
       const x = W / 2 + obst.x * obst.z * W;
-      ctx.font = tam + "px serif";
-      ctx.textAlign = "center";
-      ctx.textBaseline = "bottom";
-      ctx.fillText(obst.e, x, y);
+      if (obst.orilla) dibujarOrilla(obst.e, x, y, tam);
+      else if (obst.e.complete && obst.e.naturalWidth) {
+        const h = tam * obst.e.naturalHeight / obst.e.naturalWidth;
+        ctx.drawImage(obst.e, x - tam / 2, y - h, tam, h);
+      }
     }
   });
 
@@ -503,8 +571,8 @@ function juegoExamen(zona, api, contexto) {
     zona.innerHTML = `
       <div class="examen-top"><span>Pregunta ${i + 1} de ${PREGUNTAS.length}</span><span>Aciertos: ${aciertos}</span></div>
       <div class="medidor" style="margin-top:4px"><div class="riel"><div id="relojEx" style="width:100%;background:#6ee7a2"></div></div></div>
-      <div class="caja" style="margin-top:10px"><span class="pastilla" style="background:#2a2140;color:#c9b6ff;font-size:11px">Caso ${q.nombre}</span>
-        ${delegado ? '<span class="pastilla" style="background:#3a1d22;color:#ff8a8a;font-size:11px">✦ Este caso lo resolvió la IA</span>' : ""}
+      <div class="caja" style="margin-top:10px"><span class="pastilla" style="background:#e6e0f7;color:#4b2d91;font-size:11px">Caso ${q.nombre}</span>
+        ${delegado ? '<span class="pastilla" style="background:#fbe0e0;color:#b3261e;font-size:11px">Este caso lo resolvió la IA</span>' : ""}
         <div class="pregunta">${q.p}</div></div>
       <div class="opciones">${opciones.map((o) => `<button class="opcion">${o}</button>`).join("")}</div>
       <div class="sala">Necesitas ${APROBAR} de ${PREGUNTAS.length} para aprobar.</div>`;

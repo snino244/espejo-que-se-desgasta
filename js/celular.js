@@ -2,6 +2,11 @@
 //  FLUJO DEL CELULAR: inicio → (alerta → juego → resultado) x5 → final
 // ============================================================
 
+const ICONO = {
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12.5l5 5L20 6.5"/></svg>',
+  candado: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><rect x="5" y="11" width="14" height="10" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>',
+};
+
 const RASGOS = ["las cejas", "los ojos", "la nariz", "la boca", "todo el rostro"];
 
 const EXPEDIENTES = [
@@ -10,7 +15,7 @@ const EXPEDIENTES = [
     fecha: "1 DE JUNIO DE 2009 · OCÉANO ATLÁNTICO",
     alerta: "Vuelo 447, de Río de Janeiro a París. 228 personas a bordo. Es de noche, a 11 000 metros de altura, y los sensores de velocidad se congelan.",
     instr: "El piloto automático se desconectó. Ahora vuelas tú: mantén el avión derecho durante 15 segundos. Inclina el celular (o mueve la barra) hacia donde indique la flecha.",
-    ia: "✦ Que la IA vuele por ti",
+    ia: "Que la IA vuele por ti",
     revelacion: "El hielo bloqueó los sensores de velocidad y el piloto automático se desconectó. Los pilotos, poco entrenados para volar a mano a esa altura, levantaron la nariz del avión y este entró en pérdida. Las 228 personas a bordo murieron.",
     siguiente: "Un aterrizaje en San Francisco. Los pilotos creían que la máquina cuidaba la velocidad…",
   },
@@ -18,8 +23,8 @@ const EXPEDIENTES = [
     corto: "Asiana 214", titulo: "Aterrizaje manual", juego: juegoAterrizaje,
     fecha: "6 DE JULIO DE 2013 · SAN FRANCISCO",
     alerta: "Vuelo 214 de Asiana Airlines, a punto de aterrizar con 307 personas a bordo. Los pilotos creen que el sistema automático está cuidando la velocidad del avión… pero no es así.",
-    instr: "Mantén presionado ▲ ACELERAR para que la aguja quede en la zona verde hasta tocar la pista (22 segundos). Si sueltas, el avión se frena; si aceleras de más, se pasa.",
-    ia: "✦ Que la IA aterrice por ti",
+    instr: "Mantén presionado ACELERAR para que la aguja quede en la zona verde hasta tocar la pista (22 segundos). Si sueltas, el avión se frena; si aceleras de más, se pasa.",
+    ia: "Que la IA aterrice por ti",
     revelacion: "Los pilotos creían que el sistema automático mantenía la velocidad, pero había quedado en un modo (“HOLD”) en el que no la controlaba. Nadie miró la velocidad a tiempo: el avión llegó demasiado lento y bajo, y golpeó el muro antes de la pista. Murieron 3 personas y casi 200 resultaron heridas. Los investigadores señalaron que la tripulación dependía demasiado de la automatización.",
     siguiente: "Un hospital, 1986. La máquina decía que todo estaba bien…",
   },
@@ -28,7 +33,7 @@ const EXPEDIENTES = [
     fecha: "1986 · UN HOSPITAL EN TEXAS",
     alerta: "Eres operador/a de la Therac-25, una máquina de radioterapia controlada por computador. Hay 6 pacientes esperando. La máquina dice que todo está bien.",
     instr: "Compara la receta del médico con la pantalla de la máquina: paciente, dosis y modo. Si algo no coincide o aparece un error, detén el tratamiento. Tienes 10 segundos por paciente y necesitas 5 de 6.",
-    ia: "✦ Que la IA decida",
+    ia: "Que la IA decida",
     revelacion: "La Therac-25 lo confiaba todo a su software, sin las protecciones físicas de los modelos anteriores. Un error del programa causó sobredosis de radiación, y el mensaje “Malfunction 54” no explicaba nada; los operadores confiaban en la máquina y seguían con el tratamiento. Entre 1985 y 1987 hubo seis sobredosis graves y varias personas murieron.",
     siguiente: "Un carro que se maneja solo, y una persona que dejó de mirar…",
   },
@@ -37,7 +42,7 @@ const EXPEDIENTES = [
     fecha: "18 DE MARZO DE 2018 · TEMPE, ARIZONA",
     alerta: "Un carro autónomo de prueba avanza de noche. Tú eres la persona de respaldo: el carro se maneja solo… o eso parece.",
     instr: "Toca FRENAR cuando algo se acerque POR LA VÍA (ni muy pronto ni muy tarde). Lo que está a la orilla no importa. Cierra las notificaciones para poder ver. Tienes que frenar a tiempo 6 veces, y solo puedes frenar 2 veces sin motivo.",
-    ia: "✦ Que la IA maneje por ti",
+    ia: "Que la IA maneje por ti",
     revelacion: "La conductora de respaldo iba viendo un video en su celular, confiada en que el carro se manejaba solo. El sistema no identificó a tiempo a Elaine Herzberg, que cruzaba la calle con su bicicleta, y ella murió.",
     siguiente: "El último: un examen sin ayuda sobre todo lo que investigaste…",
   },
@@ -46,7 +51,7 @@ const EXPEDIENTES = [
     fecha: "EXPEDIENTE FINAL",
     alerta: "Llegó el momento de demostrar lo que aprendiste. Cinco preguntas sobre lo que pasó de verdad en cada caso. Si algún expediente lo resolvió la IA… tú no lo viste.",
     instr: "Responde cada pregunta antes de que se acabe el tiempo (15 segundos). Necesitas 4 de 5 para aprobar.",
-    ia: "✦ Que la IA responda por ti",
+    ia: "Que la IA responda por ti",
     revelacion: "Los cuatro accidentes siguen el mismo patrón: primero confiamos a ciegas en la máquina, luego dejamos de practicar, y cuando la máquina falla ya no sabemos reaccionar. Hoy le entregamos a la IA nuestras tareas, resúmenes y decisiones.",
     siguiente: "",
   },
@@ -125,22 +130,22 @@ function pintar(html) {
 }
 function cabecera(n) {
   const e = EXPEDIENTES[n];
-  return `<div class="top"><span>Expediente ${n + 1} · ${e.corto}</span><span class="racha ${estado.racha ? "" : "apagada"}">🔥 ${estado.racha}</span></div>`;
+  return `<div class="top"><span>Expediente ${n + 1} · ${e.corto}</span><span class="racha">${estado.racha ? "Racha " + estado.racha : ""}</span></div>`;
 }
 function candados(alFinal = false) {
   return `<div class="candados">${EXPEDIENTES.map((_, k) => {
     const c = estado.casos[k];
     const activo = !alFinal && k === estado.i;
     const cls = c === "propio" ? "hecho" : c === "ia" ? "ia" : activo ? "activo" : "";
-    const txt = c === "propio" ? "✓" : c === "ia" ? "✦" : activo ? k + 1 : alFinal ? "–" : "🔒";
+    const txt = c === "propio" ? ICONO.ok : c === "ia" ? "IA" : activo ? k + 1 : alFinal ? "–" : ICONO.candado;
     return `<div class="${cls}">${txt}</div>`;
   }).join("")}</div>`;
 }
 
 function etiquetaConexion() {
   return SESION
-    ? '<span class="pastilla" style="background:#1f3b2c;color:#6ee7a2">● Conectado al espejo</span>'
-    : '<span class="pastilla" style="background:#3a1d22;color:#ff8a8a">Sin espejo · modo demostración</span>';
+    ? '<span class="pastilla" style="background:#d9f4e4;color:#1f7a45"><span class="punto"></span>Conectado al espejo</span>'
+    : '<span class="pastilla" style="background:#fbe0e0;color:#b3261e">Sin espejo · modo demostración</span>';
 }
 
 // ------------------------------------------------------------
@@ -153,7 +158,7 @@ function pantallaBienvenida() {
       <div class="centro archivo" style="margin-top:40px">EL ESPEJO QUE SE DESGASTA</div>
       <div class="titulo centro" style="font-size:30px">Antes de empezar,<br>el espejo necesita<br>tu reflejo.</div>
       <p class="texto centro">Vas a tomarte una foto. Aparecerá en la pantalla grande y será tu reflejo durante toda la experiencia.</p>
-      <div class="abajo"><button class="btn blanco" id="irFoto">📸 Tomar mi foto</button></div>
+      <div class="abajo"><button class="btn blanco" id="irFoto">Tomar mi foto</button></div>
     </div>`);
   document.getElementById("irFoto").addEventListener("click", () => { activarAudio(); pantallaFoto(); });
 }
@@ -176,7 +181,7 @@ function pantallaFoto() {
     </div>
     <p class="texto centro" id="consejo">Ubica tu rostro dentro del óvalo, mirando de frente y con buena luz.</p>
     <div class="abajo" id="acciones">
-      <button class="btn blanco" id="disparar" disabled>📸 Tomar foto</button>
+      <button class="btn blanco" id="disparar" disabled>Tomar foto</button>
       <label class="btn borde centro" for="archivo" style="font-size:14px">o elige una foto de tu galería</label>
       <input type="file" id="archivo" accept="image/*" hidden>
     </div>`);
@@ -278,7 +283,7 @@ function pantallaInicio() {
       <div class="titulo centro" style="font-size:30px">5 expedientes<br>sin resolver</div>
       <p class="texto centro">Eres investigador/a de accidentes tecnológicos. Cada expediente es un accidente real, y vas a vivirlo desde adentro.</p>
       ${candados()}
-      <p class="texto centro" style="font-size:14px;color:#9aa6c4">En cada uno puedes investigar tú… o dejar que la IA lo haga por ti.<br>Tu foto ya está en la pantalla grande: mírala de vez en cuando.</p>
+      <p class="texto centro" style="font-size:14px">En cada uno puedes investigar tú… o dejar que la IA lo haga por ti.<br>Tu foto ya está en la pantalla grande: mírala de vez en cuando.</p>
       <div class="abajo"><button class="btn blanco" id="empezar">Abrir expediente 1</button></div>
     </div>`);
   document.getElementById("empezar").addEventListener("click", async () => {
@@ -301,7 +306,7 @@ function pantallaAlerta(n) {
   pintar(`
     ${cabecera(n)}
     <div class="crece">
-      <div class="alerta-roja" style="margin-top:10px">⚠ ALERTA · CAJA NEGRA</div>
+      <div class="alerta-roja" style="margin-top:10px">ALERTA</div>
       <div class="fecha">${e.fecha}</div>
       <div class="titulo" style="font-size:28px">${e.titulo}</div>
       <p class="texto">${e.alerta}</p>
@@ -331,7 +336,7 @@ function pantallaJuego(n) {
     sacudir() { app.classList.remove("sacude"); void app.offsetWidth; app.classList.add("sacude"); },
     tentar() {
       botonIA.classList.add("tienta");
-      botonIA.textContent = "✦ ¿Lo dejas en mis manos?";
+      botonIA.textContent = "¿Lo dejas en mis manos?";
     },
     ganar() { if (detenerJuego) { detenerJuego(); detenerJuego = null; } resolverSola(n); },
     perder(motivo) {
@@ -340,8 +345,7 @@ function pantallaJuego(n) {
       const capa = document.createElement("div");
       capa.className = "falla";
       capa.innerHTML = `
-        <div class="centro" style="font-size:44px">✖</div>
-        <div class="titulo centro">Expediente sin resolver</div>
+                <div class="titulo centro">Expediente sin resolver</div>
         <p class="texto centro">${motivo}</p>
         <button class="btn borde" id="reintentar">Intentarlo otra vez</button>`;
       zona.appendChild(capa);
@@ -358,15 +362,16 @@ function resolverSola(n) {
   estado.puntos += 100 + bono;
   estado.casos[n] = "propio";
   enviar({ tipo: "propio", n: n + 1 });
+  if (window.Estatica) Estatica.nitidez(estado.propias / 5);
   sonar("sello"); vibrar(80);
   const e = EXPEDIENTES[n];
   pintar(`
     ${cabecera(n)}
     <div class="crece">
       <div class="centro" style="margin-top:26px"><span class="sello">RESUELTO</span></div>
-      <div class="centro puntos">+100 puntos de criterio${bono ? ` · +${bono} por racha 🔥` : ""}</div>
+      <div class="centro puntos">+100 puntos de criterio${bono ? ` · +${bono} por racha` : ""}</div>
       <div class="caja" style="margin-top:16px"><b>Lo que pasó de verdad:</b> ${e.revelacion}</div>
-      ${e.siguiente ? `<div class="caja pista"><b style="color:#f5a524">Siguiente expediente:</b> ${e.siguiente}</div>` : ""}
+      ${e.siguiente ? `<div class="caja pista"><b style="color:#c2410c">Siguiente expediente:</b> ${e.siguiente}</div>` : ""}
       <div class="abajo"><button class="btn blanco" id="seguir">${n < 4 ? "Abrir expediente " + (n + 2) : "Ver el último expediente"}</button></div>
     </div>`);
   document.getElementById("seguir").addEventListener("click", () => (n < 4 ? pantallaAlerta(n + 1) : pantallaFinal()));
@@ -376,6 +381,7 @@ function delegar(n) {
   if (detenerJuego) { detenerJuego(); detenerJuego = null; }
   activarAudio();
   sonar("ia");
+  if (window.Estatica) Estatica.distorsionar(1.2);
   const capa = document.getElementById("cargandoIA");
   capa.classList.remove("oculto", "activo");
   void capa.offsetWidth;
@@ -388,7 +394,6 @@ function delegar(n) {
 }
 
 function pantallaDelegado(n) {
-  const perdioRacha = estado.racha > 0;
   estado.racha = 0;
   estado.delegaciones++;
   estado.casos[n] = "ia";
@@ -398,13 +403,13 @@ function pantallaDelegado(n) {
   const e = EXPEDIENTES[n];
   pintar(`
     ${cabecera(n)}
-    <div class="crece" style="background:radial-gradient(circle at 50% 30%, rgba(245,165,36,.22), transparent 60%)">
-      <div class="centro" style="font-size:56px;color:#f5a524;margin-top:26px">✦</div>
+    <div class="crece">
+      <div class="centro"><span class="sello-ia">IA</span></div>
       <div class="titulo centro">Listo. La IA lo resolvió por ti.</div>
-      <p class="texto centro">Expediente cerrado en <b>0,8 segundos</b>.${perdioRacha ? "<br>Perdiste la racha." : ""}</p>
-      <div class="centro" style="margin-top:12px"><span class="pastilla" style="background:#3a1d22;color:#ff8a8a">Tu reflejo perdió ${rasgo}</span></div>
-      <div class="caja" style="margin-top:16px;color:#9aa6c4">🔒 <b style="color:#c3cbe0">Lo que pasó de verdad</b> quedó en manos de la IA. No investigaste este caso, así que no lo viste.</div>
-      ${e.siguiente ? `<div class="caja pista"><b style="color:#f5a524">Siguiente expediente:</b> ${e.siguiente}</div>` : ""}
+      <p class="texto centro">Expediente cerrado en <b>0,8 segundos</b>.</p>
+      <div class="centro" style="margin-top:12px"><span class="pastilla" style="background:#fbe0e0;color:#b3261e">Tu reflejo perdió ${rasgo}</span></div>
+      <div class="caja" style="margin-top:16px"><b>Lo que pasó de verdad</b> quedó en manos de la IA. No investigaste este caso, así que no lo viste.</div>
+      ${e.siguiente ? `<div class="caja pista"><b style="color:#c2410c">Siguiente expediente:</b> ${e.siguiente}</div>` : ""}
       <p class="texto centro" style="font-size:14px">Mira el espejo.</p>
       <div class="abajo"><button class="btn blanco" id="seguir">${n < 4 ? "Abrir expediente " + (n + 2) : "Ver mi resultado"}</button></div>
     </div>`);
@@ -415,16 +420,17 @@ function pantallaFinal() {
   const m = MEDALLAS.find((x) => estado.delegaciones <= x.max);
   enviar({ tipo: "fin", delegaciones: estado.delegaciones, propias: estado.propias });
   sonar("sello");
+  if (window.Estatica && estado.delegaciones === 0) { Estatica.nitidez(1); Estatica.serpentinas(); }
   pintar(`
     <div class="crece">
       <div class="centro archivo" style="margin-top:30px">EXPEDIENTE 6</div>
       <div class="interrogante">?</div>
       <div class="titulo centro" style="font-size:28px;margin-top:14px">El siguiente caso<br>eres tú.</div>
-      <div class="centro"><span class="medalla">🏅 ${m.nombre}</span></div>
+      <div class="centro"><span class="medalla">${m.nombre}</span></div>
       <p class="texto centro">${m.texto}</p>
       ${candados(true)}
-      <p class="texto centro">Investigaste tú: <b style="color:#6ee7a2">${estado.propias}</b> · Delegaste: <b style="color:#ff8a8a">${estado.delegaciones}</b><br>Puntos de criterio: <b style="color:#ffd76a">${estado.puntos}</b></p>
-      <div class="abajo centro"><div class="titulo" style="font-size:20px">⟵ Ahora mira la pantalla</div></div>
+      <p class="texto centro">Investigaste tú: <b style="color:#1f9d57">${estado.propias}</b> · Delegaste: <b style="color:#e23b3b">${estado.delegaciones}</b><br>Puntos de criterio: <b style="color:#c2410c">${estado.puntos}</b></p>
+      <div class="abajo centro"><div class="titulo" style="font-size:20px">Ahora mira la pantalla</div></div>
     </div>`);
 }
 

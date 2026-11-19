@@ -2,14 +2,15 @@
 //  EL ESPEJO (computador)
 //  1. Muestra el QR y espera al celular.
 //  2. Recibe la foto tomada en el celular y detecta el rostro una sola vez.
-//  3. Con cada delegación borra un rasgo: cejas → ojos → nariz → boca → rostro.
+//  3. Con cada delegación pixela y borra un rasgo: cejas, ojos, nariz, boca, rostro.
+//  4. Cada expediente resuelto sin IA le devuelve nitidez al fondo.
 // ============================================================
 
 const RASGOS = ["las cejas", "los ojos", "la nariz", "la boca", "todo el rostro"];
 const FINALES = [
   { max: 0, bueno: true,  titulo: "Todo lo que ves es tuyo.", texto: "Resolviste los cinco expedientes por tu cuenta. Pensar cuesta, y aun así lo elegiste.", cierre: "Sigue siendo el piloto de tu propia cabeza." },
   { max: 2, bueno: true,  titulo: "Todavía te reconoces.", texto: "Usaste la máquina como apoyo, no como reemplazo. Tu reflejo perdió poco.", cierre: "La clave es no soltar el control del todo." },
-  { max: 4, bueno: false, titulo: "Cada atajo se llevó algo.", texto: "Delegaste casi todo, y tu reflejo ya no se parece a ti. ¿Cuánto más vas a dejar ir?", cierre: "Confiar a ciegas → dejar de practicar → no saber reaccionar." },
+  { max: 4, bueno: false, titulo: "Cada atajo se llevó algo.", texto: "Delegaste casi todo, y tu reflejo ya no se parece a ti. ¿Cuánto más vas a dejar ir?", cierre: "Confiar a ciegas, dejar de practicar, no saber reaccionar." },
   { max: 5, bueno: false, titulo: "Batería agotada.", texto: "Los pilotos del vuelo 447 tampoco sabían volar cuando la máquina se apagó. Hoy le entregamos a la IA nuestras tareas, resúmenes y decisiones.", cierre: "No seamos dependientes." },
 ];
 
@@ -139,6 +140,7 @@ function alResolverSola() {
   propias++;
   brillo = 1.8;
   avisar("¡Lo hiciste tú!", "bien");
+  if (window.Estatica) { Estatica.nitidez(propias / 5); if (propias >= 5) Estatica.serpentinas(); }
 }
 
 function alDelegar() {
@@ -146,6 +148,7 @@ function alDelegar() {
   if (delegaciones >= 5) return;
   delegaciones++;
   falla = 1.1;
+  if (window.Estatica) Estatica.distorsionar(1.3);
   avisar("Tu reflejo perdió " + RASGOS[delegaciones - 1], "mal");
   actualizarBateria();
 }
@@ -181,12 +184,14 @@ function mostrarFinal() {
   $("final").classList.toggle("bueno", f.bueno);
   $("final").classList.add("visible");
   $("expediente").textContent = "";
+  if (window.Estatica && delegaciones === 0) { Estatica.nitidez(1); Estatica.serpentinas(); }
 }
 
 async function reiniciar() {
   conectado = false; terminado = false;
   delegaciones = 0; propias = 0; brillo = 0; falla = 0;
   foto = null; parches = []; visibles = [0, 0, 0, 0, 0];
+  if (window.Estatica) Estatica.reiniciar();
   $("final").classList.remove("visible");
   $("bateria").classList.remove("visible");
   $("expediente").textContent = "";
@@ -331,8 +336,7 @@ let antes = performance.now();
 function dibujar(ahora) {
   const dt = Math.min((ahora - antes) / 1000, 0.1);
   antes = ahora;
-  ctx.fillStyle = "#0b0e15";
-  ctx.fillRect(0, 0, innerWidth, innerHeight);
+  ctx.clearRect(0, 0, innerWidth, innerHeight);
 
   if (foto) {
     const m = marcoDeFoto();
@@ -352,9 +356,17 @@ function dibujar(ahora) {
     ctx.drawImage(foto, m.x, m.y, m.w, m.h);
     for (let i = 0; i < 5; i++) {
       const meta = i < delegaciones ? 1 : 0;
-      visibles[i] += Math.sign(meta - visibles[i]) * Math.min(Math.abs(meta - visibles[i]), dt * 0.9);
-      if (visibles[i] > 0.001 && parches[i]) {
-        ctx.globalAlpha = visibles[i];
+      // al perder un rasgo: primero se pixela, luego se borra (más lento que antes)
+      const vel = meta ? 0.42 : 0.9;
+      visibles[i] += Math.sign(meta - visibles[i]) * Math.min(Math.abs(meta - visibles[i]), dt * vel);
+      const v = visibles[i];
+      if (v > 0.001 && parches[i]) {
+        const borrado = meta ? suave((v - 0.45) / 0.55) : v;
+        if (meta && v < 1) {
+          ctx.globalAlpha = Math.min(1, v * 5) * (1 - borrado * 0.85);
+          ctx.drawImage(pixelado(i, v), m.x, m.y, m.w, m.h);
+        }
+        ctx.globalAlpha = borrado;
         ctx.drawImage(parches[i], m.x, m.y, m.w, m.h);
         ctx.globalAlpha = 1;
       }
@@ -365,18 +377,44 @@ function dibujar(ahora) {
     }
     ctx.restore();
     ctx.lineWidth = 6;
-    ctx.strokeStyle = brillo > 0 ? "#ffd76a" : "#2a2f3a";
+    ctx.strokeStyle = brillo > 0 ? "#ffd76a" : "#12151f";
     ctx.beginPath();
     ctx.roundRect(m.x, m.y, m.w, m.h, 22);
     ctx.stroke();
   }
 
   if (falla > 0) dibujarFalla(Math.min(1, falla));
-  if (terminado) { ctx.fillStyle = "rgba(11,14,21,.5)"; ctx.fillRect(0, 0, innerWidth, innerHeight); }
+  if (terminado) { ctx.fillStyle = "rgba(255,255,255,.35)"; ctx.fillRect(0, 0, innerWidth, innerHeight); }
 
   brillo = Math.max(0, brillo - dt);
   falla = Math.max(0, falla - dt);
   requestAnimationFrame(dibujar);
+}
+
+const suave = (t) => { t = Math.max(0, Math.min(1, t)); return t * t * (3 - 2 * t); };
+
+// Versión pixelada de la foto, recortada a la forma del rasgo i.
+const lienzoChico = document.createElement("canvas");
+const lienzoPixel = document.createElement("canvas");
+function pixelado(i, v) {
+  const W = foto.width, H = foto.height;
+  const bloque = Math.round(5 + v * 40);
+  lienzoChico.width = Math.ceil(W / bloque); lienzoChico.height = Math.ceil(H / bloque);
+  const c1 = lienzoChico.getContext("2d");
+  c1.imageSmoothingEnabled = true;
+  c1.drawImage(foto, 0, 0, lienzoChico.width, lienzoChico.height);
+  if (lienzoPixel.width !== W || lienzoPixel.height !== H) { lienzoPixel.width = W; lienzoPixel.height = H; }
+  const c2 = lienzoPixel.getContext("2d");
+  c2.globalCompositeOperation = "source-over";
+  c2.clearRect(0, 0, W, H);
+  c2.imageSmoothingEnabled = false;
+  // corrimiento aleatorio para que se vea como señal dañada
+  const dx = (Math.random() - 0.5) * bloque * 0.6;
+  c2.drawImage(lienzoChico, dx, 0, lienzoChico.width * bloque, lienzoChico.height * bloque);
+  c2.globalCompositeOperation = "destination-in";
+  c2.drawImage(parches[i], 0, 0);
+  c2.globalCompositeOperation = "source-over";
+  return lienzoPixel;
 }
 
 // Efecto de "falla": franjas desplazadas y tinte rojo.
@@ -386,7 +424,7 @@ function dibujarFalla(a) {
     const y = Math.random() * innerHeight, h = 6 + Math.random() * 36, dx = (Math.random() - 0.5) * 80 * a;
     ctx.drawImage(lienzo, 0, y * dpr, lienzo.width, h * dpr, dx, y, innerWidth, h);
   }
-  ctx.fillStyle = `rgba(255,40,60,${0.22 * a})`;
+  ctx.fillStyle = `rgba(255,40,60,${0.12 * a})`;
   ctx.fillRect(0, 0, innerWidth, innerHeight);
 }
 
