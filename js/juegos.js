@@ -28,7 +28,8 @@ function nubesHTML(cuantas, alto = 70) {
   let h = "";
   for (let k = 0; k < cuantas; k++) {
     const dur = azar(14, 26), retraso = -azar(0, dur);
-    h += `<div class="nube" style="top:${azar(2, alto)}%;left:0;animation-duration:${dur}s;animation-delay:${retraso}s">${nubeSVG()}</div>`;
+    const n = 1 + Math.floor(Math.random() * 5);
+    h += `<img class="nube" src="img/nube${n}.png" alt="" style="top:${azar(2, alto)}%;left:0;animation-duration:${dur}s;animation-delay:${retraso}s">`;
   }
   return h;
 }
