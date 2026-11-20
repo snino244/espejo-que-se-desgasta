@@ -20,7 +20,7 @@ const EXPEDIENTES = [
     siguiente: "Un aterrizaje en San Francisco. Los pilotos creían que la máquina cuidaba la velocidad…",
   },
   {
-    corto: "Asiana 214", titulo: "Aterrizaje manual", juego: juegoAterrizaje,
+    corto: "Asiana 214", titulo: "Aterrizaje manual", juego: juegoAterrizaje3D,
     fecha: "6 DE JULIO DE 2013 · SAN FRANCISCO",
     alerta: "Vuelo 214 de Asiana Airlines, a punto de aterrizar con 307 personas a bordo. Los pilotos creen que el sistema automático está cuidando la velocidad del avión… pero no es así.",
     instr: "Mantén presionado ACELERAR para que la aguja quede en la zona verde hasta tocar la pista (22 segundos). Si sueltas, el avión se frena; si aceleras de más, se pasa.",
