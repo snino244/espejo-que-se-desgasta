@@ -9,13 +9,26 @@
 const azar = (a, b) => a + Math.random() * (b - a);
 const limitar = (v, a, b) => Math.max(a, Math.min(b, v));
 
-// Nubes (imágenes) que cruzan una escena de lado a lado
+// Nube blanca dibujada (bolas redondeadas), con variación en cada una
+function nubeSVG() {
+  const bolas = [];
+  const n = 5 + Math.floor(Math.random() * 3);
+  for (let k = 0; k < n; k++) {
+    const x = 20 + (k / (n - 1)) * 160 + azar(-8, 8);
+    const r = (k === 0 || k === n - 1) ? azar(14, 18) : azar(20, 32);
+    const y = 62 - (r * 0.55) - (k % 2 ? 0 : azar(0, 10));
+    bolas.push(`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r.toFixed(1)}"/>`);
+  }
+  bolas.push('<rect x="20" y="58" width="160" height="22" rx="11"/>');
+  return `<svg viewBox="0 0 200 84" aria-hidden="true"><g fill="#ffffff">${bolas.join("")}</g></svg>`;
+}
+
+// Nubes blancas que cruzan una escena de lado a lado
 function nubesHTML(cuantas, alto = 70) {
   let h = "";
   for (let k = 0; k < cuantas; k++) {
-    const n = 1 + Math.floor(Math.random() * 5);
     const dur = azar(14, 26), retraso = -azar(0, dur);
-    h += `<img class="nube" src="img/nube${n}.png" alt="" style="top:${azar(2, alto)}%;left:0;animation-duration:${dur}s;animation-delay:${retraso}s">`;
+    h += `<div class="nube" style="top:${azar(2, alto)}%;left:0;animation-duration:${dur}s;animation-delay:${retraso}s">${nubeSVG()}</div>`;
   }
   return h;
 }
